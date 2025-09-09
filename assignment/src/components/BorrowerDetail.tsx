@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-
-import { useEffect, useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
-import { useBorrowerStore } from "@/lib/store";
+import {useBorrowerStore} from "@/lib/store";
+import { Card, CardContent } from "@/components/ui/card";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
 
 interface BorrowerDetailData {
     id: string;
@@ -17,6 +23,7 @@ interface BorrowerDetailData {
     loan_amount: number;
     status: string;
     employment: string;
+    income: number;
     existing_loan: number;
     credit_score: number;
     source_of_funds: string;
@@ -25,68 +32,118 @@ interface BorrowerDetailData {
 }
 
 export default function BorrowerDetail() {
-    const { activeBorrowerId } = useBorrowerStore();
-    const [detail, setDetail] = useState<BorrowerDetailData | null>(null);
+    const activeBorrowerId = useBorrowerStore((state) => state.activeBorrowerId);
+    const [borrower, setBorrower] = useState<BorrowerDetailData | null>(null);
 
+    const [open, setOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
 
     useEffect(() => {
         if (activeBorrowerId) {
             fetch(`/api/borrowers/${activeBorrowerId}`)
-                .then(res => res.json())
-                .then(data => setDetail(data));
+                .then((res) => res.json())
+                .then((data) => setBorrower(data));
         }
     }, [activeBorrowerId]);
 
 
-    if (!detail) {
-        return (
-            <Card><CardContent>Select a borrower to see details.</CardContent></Card>
-        );
-    }
+    if (!borrower) return <div className="p-4">Select a borrower</div>;
+
+    const handleAction = async (endpoint: string, message: string) => {
+        const res = await fetch(`/api/borrowers/${borrower.id}/${endpoint}`, {
+            method: "POST",
+        });
+        if (res.ok) {
+            setModalMessage(message);
+            setOpen(true);
+        }
+    };
 
     return (
         <Card>
-            <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <h2 className="font-bold text-lg">{detail.name}</h2>
-                        <p>{detail.email} · {detail.phone}</p>
-                        <p className="text-sm text-gray-500">Loan: ${detail.loan_amount}</p>
+            <CardContent>
+                <div className="p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-bold">{borrower.name}</h2>
+                            <p className="text-sm text-gray-500">{borrower.email}</p>
+                            <p className="text-sm text-gray-500">{borrower.phone}</p>
+                            <p className="font-semibold">Loan: ${borrower.loan_amount}</p>
+                        </div>
+                        <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800">
+                            {borrower.status}
+                        </span>
                     </div>
-                    <Badge>{detail.status}</Badge>
-                </div>
 
-                <Accordion type="single" collapsible>
-                    <AccordionItem value="ai">
-                        <AccordionTrigger>AI Explainability</AccordionTrigger>
-                        <AccordionContent>
-                            <ul className="space-y-2">
-                                {detail.ai_flags.map((flag, i) => (
-                                    <li key={i} className="flex items-center gap-2 text-red-600">
-                                        <AlertTriangle className="h-4 w-4" /> {flag}
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="mt-3 flex gap-2">
-                                <Button onClick={() => console.log("Request Docs")}>Request Documents</Button>
-                                <Button variant="secondary" onClick={() => console.log("Send to Valuer")}>Send to Valuer</Button>
-                                <Button variant="secondary" onClick={() => console.log("Approve")}>Approve</Button>
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+                    <div>
+                        <h3 className="font-semibold mb-2">AI Explainability</h3>
+                        <ul className="space-y-1">
+                            {borrower.ai_flags.map((flag, i) => (
+                                <li key={i} className="flex items-center text-red-600">
+                                    <AlertTriangle className="w-4 h-4 mr-2" /> {flag}
+                                </li>
+                            ))}
+                        </ul>
 
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><strong>Employment:</strong> {detail.employment}</div>
-                    <div><strong>Existing Loan:</strong> {detail.existing_loan}</div>
-                    <div><strong>Credit Score:</strong> {detail.credit_score}</div>
-                    <div><strong>Source of Funds:</strong> {detail.source_of_funds}</div>
-                </div>
+                        <div className="flex gap-2 mt-3">
+                            <Button
+                                variant="secondary"
+                                onClick={() =>
+                                    handleAction("request-documents", "Documents requested.")
+                                }
+                            >
+                                Request Documents
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => handleAction("send-valuer", "Valuer notified.")}
+                            >
+                                Send to Valuer
+                            </Button>
+                            <Button
+                                variant="default"
+                                onClick={() => handleAction("approve", "Loan approved.")}
+                            >
+                                Approve
+                            </Button>
+                        </div>
+                    </div>
 
+                    <div className="p-3 bg-gray-50 rounded-md">
+                        <h3 className="font-semibold mb-2">Loan Summary</h3>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                            <p>Employment: {borrower.employment}</p>
+                            <p>Existing Loan: ${borrower.existing_loan}</p>
+                            <p>Credit Score: {borrower.credit_score}</p>
+                            <p>Source of Funds: {borrower.source_of_funds}</p>
+                        </div>
 
-                <div className="bg-yellow-100 text-yellow-800 p-3 rounded flex justify-between items-center">
-                    <span>{detail.risk_signal}</span>
-                    <Button className="bg-red-600 hover:bg-red-700">Escalate to Credit Committee</Button>
+                        <div className="mt-3 p-2 bg-yellow-100 text-yellow-800 rounded flex items-center">
+                            <AlertTriangle className="w-4 h-4 mr-2" />
+                            {borrower.risk_signal}
+                        </div>
+
+                        <Button
+                            className="mt-3"
+                            onClick={() =>
+                                handleAction("escalate", "Escalated to Credit Committee.")
+                            }
+                        >
+                            Escalate to Credit Committee
+                        </Button>
+                    </div>
+
+                    <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Action Successful</DialogTitle>
+                                <DialogDescription>{modalMessage}</DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                                <Button onClick={() => setOpen(false)}>Close</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </CardContent>
         </Card>
