@@ -1,5 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
-
+import { NextRequest, NextResponse } from "next/server";
 
 const detail = {
     "1": {
@@ -50,10 +49,12 @@ const detail = {
         risk_signal: "High LTV",
         ai_flags: ["High Debt-to-Income Ratio detected"],
     },
-} as const
+} as const;
 
-
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-    const item = detail[params.id as keyof typeof detail] ?? detail["1"]
-    return NextResponse.json(item)
+export async function GET(
+    _req: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    const item = detail[params.id as keyof typeof detail] ?? detail["1"];
+    return NextResponse.json(item);
 }
