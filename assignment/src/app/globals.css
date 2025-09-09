@@ -122,45 +122,56 @@
 }
 
 .bg-circles {
-  position: relative;
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
+  z-index: -1; 
   background: #04060a;
 }
 
-.bg-circles::before,
-.bg-circles::after {
-  content: '';
+.bg-circles div {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.3;
-  animation: floatCircles 2s linear infinite;
+  opacity: 0.2;
+  animation: moveCircle linear infinite;
 }
 
-.bg-circles::before {
+.bg-circles .circle1 {
+  width: 400px;
+  height: 400px;
+  background: #1e40af;
+  top: -200px;
+  left: -200px;
+  animation-duration: 5s;
+}
+
+.bg-circles .circle2 {
   width: 300px;
   height: 300px;
-  background: #1e40af; 
-  top: -100px;
-  left: -100px;
+  background: #9333ea;
+  bottom: -150px;
+  right: -150px;
+  animation-duration: 5s;
 }
 
-.bg-circles::after {
-  width: 200px;
-  height: 200px;
-  background: #9333ea; 
-  bottom: -50px;
-  right: -50px;
-  animation-duration: 2s; 
+.bg-circles .circle3 {
+  width: 500px;
+  height: 500px;
+  background: #14b8a6;
+  top: 50%;
+  left: 50%;
+  animation-duration: 5s;
 }
 
-@keyframes floatCircles {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(50px, 50px) scale(1.2);
-  }
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
+@keyframes moveCircle {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(50px, 50px) rotate(90deg); }
+  50% { transform: translate(0, 100px) rotate(180deg); }
+  75% { transform: translate(-50px, 50px) rotate(270deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
 }
+
+
