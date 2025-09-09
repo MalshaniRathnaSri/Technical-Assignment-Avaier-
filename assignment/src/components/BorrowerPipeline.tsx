@@ -1,10 +1,8 @@
 "use client";
 
-
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useBorrowerStore } from "@/lib/store";
-
 
 interface Borrower {
     id: string;
@@ -14,25 +12,21 @@ interface Borrower {
     status: string;
 }
 
-
 interface PipelineResponse {
     new: Borrower[];
     in_review: Borrower[];
     approved: Borrower[];
 }
 
-
 export default function BorrowerPipeline() {
     const [data, setData] = useState<PipelineResponse | null>(null);
     const { setActiveBorrower, activeBorrowerId } = useBorrowerStore();
-
 
     useEffect(() => {
         fetch("/api/borrowers/pipeline")
             .then((res) => res.json())
             .then((json) => setData(json));
     }, []);
-
 
     const renderGroup = (title: string, borrowers: Borrower[]) => (
         <div>
@@ -54,9 +48,7 @@ export default function BorrowerPipeline() {
         </div>
     );
 
-
     if (!data) return <div>Loading pipeline...</div>;
-
 
     return (
         <div className="space-y-6">

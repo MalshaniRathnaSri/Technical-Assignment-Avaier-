@@ -120,3 +120,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+.bg-circles {
+  position: relative;
+  overflow: hidden;
+  background: #04060a;
+}
+
+.bg-circles::before,
+.bg-circles::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: floatCircles 2s linear infinite;
+}
+
+.bg-circles::before {
+  width: 300px;
+  height: 300px;
+  background: #1e40af; 
+  top: -100px;
+  left: -100px;
+}
+
+.bg-circles::after {
+  width: 200px;
+  height: 200px;
+  background: #9333ea; 
+  bottom: -50px;
+  right: -50px;
+  animation-duration: 2s; 
+}
+
+@keyframes floatCircles {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(50px, 50px) scale(1.2);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}

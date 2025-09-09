@@ -4,13 +4,10 @@ import BrokerOverview from "@/components/BrokerOverview";
 
 export default function Page() {
   return (
-    <body className="dark">
-      <main className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
-        <BorrowerPipeline />
-        <BorrowerDetail />
-        <BrokerOverview />
-      </main>
-    </body>
-
+    <main className="dark bg-circles grid grid-cols-1 md:grid-cols-3 gap-4 p-4 relative z-10">
+      <BorrowerPipeline />
+      <BorrowerDetail />
+      <BrokerOverview />
+    </main>
   );
 }
