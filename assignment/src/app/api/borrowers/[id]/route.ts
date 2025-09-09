@@ -51,10 +51,10 @@ const detail = {
     },
 } as const;
 
-export async function GET(
-    _req: NextRequest,
-    { params }: { params: { id: string } }
-) {
-    const item = detail[params.id as keyof typeof detail] ?? detail["1"];
+export const dynamic = "force-dynamic";
+
+export async function GET(request: NextRequest, context: { params: { id: string } }) {
+    const { id } = context.params;
+    const item = detail[id as keyof typeof detail] ?? detail["1"];
     return NextResponse.json(item);
 }
