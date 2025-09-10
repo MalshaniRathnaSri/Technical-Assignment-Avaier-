@@ -55,9 +55,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } } 
-): Promise<NextResponse> {
-  const { id } = context.params;
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
   const item = detail[id as keyof typeof detail] ?? detail["1"];
   return NextResponse.json(item);
 }
